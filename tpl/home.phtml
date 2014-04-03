@@ -1,0 +1,55 @@
+<?php $this->render(array('title' => $title), 'header'); ?>
+<div class="container">
+    <h1>留言板</h1>
+    <hr />
+    <form id="guestbookForm">
+        <div class="form-group">
+            <label for="content">给我留言</label>
+            <textarea name="content" class="form-control" rows="3" id="content"></textarea>
+        </div>
+        <input type="submit" class="btn btn-primary btn-lg" value="提交" />
+    </form>
+    <h1>别人的留言</h1>
+    <hr />
+    <div id="guestbookMessages">
+        <ul>
+            <?php foreach ($messages as $message): ?>
+                <li>
+                    <?php echo $message[1]; ?>
+                    <span class="label label-default"><?php echo date('Y年m月d日 H:i', $message[2]); ?></span>
+                    <span class="glyphicon glyphicon-remove delete" id="<?php echo $message[0]; ?>"></span>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        $('#guestbookForm').submit(function(event) {
+            event.preventDefault();
+            $.ajax({
+                url: '/home/add',
+                method: 'POST',
+                data: 'content=' + $('#content').val(),
+                dataType: 'json',
+                success: function(data) {
+                    location.reload();
+                }
+            });
+        });
+        // 事件委托
+        $('#guestbookMessages').on('click', 'span.delete', function() {
+            var $message = $(this);
+            $.ajax({
+                url: '/home/del',
+                method: 'POST',
+                data: 'uid=' + $message.attr('id'),
+                dataType: 'json',
+                success: function(data) {
+                    $message.parent('li').remove();
+                }
+            });
+        });
+    });
+</script>
+<?php $this->render(array('band' => 'pantaovay'), 'footer'); ?>
